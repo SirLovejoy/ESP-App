@@ -1,0 +1,122 @@
+""import React, { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import './App.css';
+
+const App = () => {
+  const [entities, setEntities] = useState([]);
+  const [isESPActive, setIsESPActive] = useState(false);
+  const [showPlayers, setShowPlayers] = useState(true);
+  const [showLoot, setShowLoot] = useState(true);
+  const [showCrosshair, setShowCrosshair] = useState(true);
+  const [showMinimap, setShowMinimap] = useState(true);
+
+  // Mock data source - replace with game API or memory hook
+  const fetchGameEntities = () => {
+    return [
+      { id: 1, name: 'Player1', health: 100, distance: 50, type: 'Enemy', loot: ['AK-47', 'Medkit'] },
+      { id: 2, name: 'Player2', health: 80, distance: 70, type: 'Ally', loot: [] },
+      { id: 3, name: 'LootCrate', health: 0, distance: 120, type: 'Loot', loot: ['Sniper', 'Ammo'] },
+    ];
+  };
+
+  useEffect(() => {
+    if (isESPActive) {
+      const interval = setInterval(() => {
+        setEntities(fetchGameEntities());
+      }, 1000);
+
+      return () => clearInterval(interval);
+    } else {
+      setEntities([]);
+    }
+  }, [isESPActive]);
+
+  return (
+    <div className="esp-app">
+      <div className="controls">
+        <Button onClick={() => setIsESPActive(!isESPActive)}>
+          {isESPActive ? 'Disable ESP' : 'Enable ESP'}
+        </Button>
+        <Button onClick={() => setShowPlayers(!showPlayers)}>
+          {showPlayers ? 'Hide Players' : 'Show Players'}
+        </Button>
+        <Button onClick={() => setShowLoot(!showLoot)}>
+          {showLoot ? 'Hide Loot' : 'Show Loot'}
+        </Button>
+        <Button onClick={() => setShowCrosshair(!showCrosshair)}>
+          {showCrosshair ? 'Hide Crosshair' : 'Show Crosshair'}
+        </Button>
+        <Button onClick={() => setShowMinimap(!showMinimap)}>
+          {showMinimap ? 'Hide Minimap' : 'Show Minimap'}
+        </Button>
+      </div>
+
+      {showCrosshair && (
+        <div className="crosshair">
+          <div className="crosshair-vertical" />
+          <div className="crosshair-horizontal" />
+        </div>
+      )}
+
+      {showMinimap && (
+        <div className="minimap">
+          <p>Mini-map (Demo Version)</p>
+          <div className="minimap-overlay">
+            {entities.map((entity) => (
+              <motion.div 
+                key={entity.id} 
+                className={`map-marker ${entity.type.toLowerCase()}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                {entity.name}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="overlay">
+        {entities
+          .filter(entity => 
+            (entity.type !== 'Loot' && showPlayers) || 
+            (entity.type === 'Loot' && showLoot)
+          )
+          .map((entity) => (
+            <motion.div 
+              key={entity.id} 
+              className={`entity-tag ${entity.type.toLowerCase()}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="entity-card">
+                <CardContent>
+                  <p>{entity.name}</p>
+                  <p>Health: {entity.health}</p>
+                  <p>Distance: {entity.distance}m</p>
+                  <p>Type: {entity.type}</p>
+                  {entity.loot.length > 0 && (
+                    <div className="loot-list">
+                      <p>Loot:</p>
+                      <ul>
+                        {entity.loot.map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+      </div>
+    </div>
+  );
+};
+
+export default App;
+""
